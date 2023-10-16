@@ -1,0 +1,15 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NO_COLOR='\033[0m'
+LINE="${YELLOW}----------------------------------------------${NO_COLOR}"
+
+echo "${LINE}"
+echo "${YELLOW}Starting the Commit-Lint checks ...${NO_COLOR}"
+
+npx --no-install commitlint --edit $1
+
+echo "${GREEN}Commit-Lint checks completed successfully !!!${NO_COLOR}"
+echo "${LINE}\n"

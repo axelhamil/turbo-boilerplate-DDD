@@ -1,0 +1,19 @@
+{
+  "name": "Example",
+  "version": "1.0.0",
+  "main": "src/main.ts",
+  "scripts": {
+    "clean": "rimraf dist",
+    "dev": "ts-node-dev --respawn src/main.ts",
+    "start": "pnpm run build && node dist/main.js",
+    "build": "pnpm run clean && tsc",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.6",
+    "eslint-config-custom": "workspace:*",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig": "workspace:*"
+  }
+}

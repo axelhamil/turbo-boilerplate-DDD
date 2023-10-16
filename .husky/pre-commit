@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+RED='\033[1;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NO_COLOR='\033[0m'
+
+# Exit script on non-zero command exit status
+set -e
+
+echo  "${YELLOW}Starting the linting process...${NO_COLOR}"
+npx --no-install lint-staged
+echo  "${GREEN}Linting completed successfully!${NO_COLOR}"
+
+echo  "${YELLOW}Starting the pre-commit checks...${NO_COLOR}"
+npx --no-install git-precommit-checks
+
+echo  "${GREEN}Pre-commit checks process completed successfully !${NO_COLOR}"
