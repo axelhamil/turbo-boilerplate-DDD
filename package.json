@@ -26,7 +26,6 @@
     "eslint-config-custom": "*",
     "git-precommit-checks": "^3.1.0",
     "husky": "^8.0.3",
-    "install": "^0.13.0",
     "lint-staged": "^15.0.1",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
