@@ -1,40 +1,41 @@
-import {
-  DomainEvent,
-  DomainObject,
-  DomainProps
-} from "../../../shared/core/domain";
+import t from "io-ts";
 
-export type PlayerWithLogic = Player & PlayerLogic;
+import { defaultAvatar } from "../../__tests__/mocks";
+import { PlayerIdCodec, PointsCodec, TeamIdCodec } from "../../common/domain";
 
-export type Player = DomainObject & {
-  readonly teamId: string | null;
-  readonly name: string;
-  readonly points: number;
-  readonly avatar: Avatar;
-}
+export const AvatarAssetSchema = t.type({
+  assetId: t.string,
+  category: t.string,
+  color: t.string,
+  type: t.string,
+});
 
-export type PlayerProps = DomainProps & {
+export const AvatarSchema = t.array(AvatarAssetSchema).default(defaultAvatar);
+export const PlayerNameSchema = t.string.min(1);
+
+export const PlayerSchema = t.type({
+  id: PlayerIdCodec,
+  teamId: TeamIdCodec,
+  name: PlayerNameSchema,
+  points: PointsCodec,
+  avatar: AvatarSchema,
+});
+
+export type Avatar = t.TypeOf<typeof AvatarSchema>;
+export type AvatarAsset = t.TypeOf<typeof AvatarAssetSchema>;
+export type PlayerName = t.TypeOf<typeof PlayerNameSchema>;
+
+export type Player = t.TypeOf<typeof PlayerSchema>;
+export type PlayerProps = {
+  id?: string | null;
   teamId?: string | null;
   name: string;
   points?: number;
   avatar?: Avatar;
 }
 
-export type Avatar = AvatarAsset[];
-
-export type AvatarAsset = {
-  assetId: string;
-  category: string;
-  color: string | null;
-  type: string;
-}
-
-export type PlayerLogic = {
-  addPoints: (pointsToAdd: number) => PlayerWithLogic;
-  addTeam: (teamId: string) => PlayerWithLogic;
-}
-
-export type PlayerPointsAddedEvent = DomainEvent & {
+export type PlayerPointsAddedEvent = {
+  type: 'PLAYER_POINTS_ADDED';
+  dateTimeOccurred: Date;
   id: string;
-};
-
+}

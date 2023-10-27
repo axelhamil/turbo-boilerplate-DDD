@@ -4,24 +4,13 @@ export interface IDomainException {
   error: string;
 }
 
-export class DomainError extends Error {
-  constructor(
-    public readonly message = 'Domain Error',
-    private readonly status = 406,
-  ) {
-    super(message);
-    Object.setPrototypeOf(this, DomainError.prototype);
-  }
-  
-  getStatus(): number {
-    return this.status;
-  }
-  
-  getResponse(): IDomainException {
-    return {
-      error: 'Domain Error',
-      message: [this.message],
-      statusCode: this.status,
-    };
-  }
+export function createDomainException(
+  message: string = 'Domain Error',
+  status: number = 406
+): IDomainException {
+  return {
+    error: 'Domain Error',
+    message: [message],
+    statusCode: status,
+  };
 }

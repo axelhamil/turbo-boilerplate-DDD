@@ -1,23 +1,17 @@
-import { DomainError } from "../../../shared/core/domain/Domain.errors";
+import { createDomainException, IDomainException } from "../../../shared/core/domain";
 
-export class PlayerError extends DomainError {
-  private constructor(message?: string, status?: number) {
-    super(message, status);
-  }
-  
-  static playerAlreadyHasTeam(): PlayerError {
-    return new PlayerError('Player already has a team', 409);
-  }
-  
-  static playerHasNoTeam(): PlayerError {
-    return new PlayerError('Player has no team', 409);
-  }
-  
-  static notFound(id: string): PlayerError {
-    return new PlayerError(`Player with id ${id} not found`);
-  }
-  
-  static exists(id: string): PlayerError {
-    return new PlayerError(`Player with ${id} already exist`, 409);
-  }
+export function playerAlreadyHasTeam(): IDomainException {
+  return createDomainException('Player already has a team', 409);
+}
+
+export function playerHasNoTeam(): IDomainException {
+  return createDomainException('Player has no team', 409);
+}
+
+export function playerNotFound(id: string): IDomainException {
+  return createDomainException(`Player with id ${id} not found`);
+}
+
+export function playerExists(id: string): IDomainException {
+  return createDomainException(`Player with ${id} already exists`, 409);
 }

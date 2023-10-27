@@ -1,42 +1,16 @@
-import { createDomain, createDomainWithLogic } from "../../../shared/core/domain";
-import { domainEvents } from "../../../shared/infrastructure/hook";
+import { create, registerEvent } from "../../../shared/core/domain";
 import { playerPointsAddedEvent } from "./events/playerPointsAdded.event";
-import {
-  Player,
-  PlayerLogic,
-  PlayerProps,
-  PlayerWithLogic
-} from "./player.domain";
-import { validatePlayerDomain } from "./player.validator";
+import { Player, PlayerProps, PlayerSchema } from "./player.domain";
 
-// DOMAIN CREATION
-const createPlayer = createDomain<PlayerProps, Player>(validatePlayerDomain);
-export const createPlayerWithLogic = createDomainWithLogic<PlayerProps, Player, PlayerLogic>(
-  createPlayer,
-  getPlayerLogic
-);
+export const createPlayer = (props: PlayerProps | Player): Player => create<Player>(PlayerSchema, props);
 
-// BUSINESS LOGIC
-function addPointsToPlayer(player: Player, pointsToAdd: number): PlayerWithLogic {
-  const newPlayer = createPlayerWithLogic({
-    ...player,
-    points: player.points + pointsToAdd
-  });
-  
-  domainEvents.registerEvent(newPlayer.id, playerPointsAddedEvent(newPlayer.id));
-  console.log("REGISTER EVENT");
-  
+export function addPointsToPlayer(player: Player, pointsToAdd: number): Player {
+  const newPlayer = createPlayer({ ...player, points: player.points + pointsToAdd });
+  registerEvent(newPlayer.id, playerPointsAddedEvent(newPlayer.id));
   return newPlayer;
 }
 
-function addTeamToPlayer(player: Player, teamId: string): PlayerWithLogic {
-  return createPlayerWithLogic({ ...player, teamId });
-}
-
-function getPlayerLogic(player: Player): PlayerLogic {
-  return {
-    addPoints: (pointsToAdd: number) => addPointsToPlayer(player, pointsToAdd),
-    addTeam: (teamId: string) => addTeamToPlayer(player, teamId)
-  };
+export function addTeamToPlayer(player: Player, teamId: string): Player {
+  return createPlayer({ ...player, teamId });
 }
 

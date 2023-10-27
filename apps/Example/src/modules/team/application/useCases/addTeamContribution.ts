@@ -1,9 +1,23 @@
-import { toPureDomain } from "../../../../shared/core/domain";
+import { create } from "../../../../shared/core/domain";
+import {
+  PlayerId,
+  PlayerIdSchema,
+  TeamId,
+  TeamIdSchema
+} from "../../../common/domain";
 import { IPlayerRepo } from "../../../player/application/spi/playerRepo.spi";
-import { PlayerPointsAddedEvent } from "../../../player/domain";
-import { PlayerError } from "../../../player/errors/player.errors";
-import { Team, TeamWithLogic, validateTeamDomain } from "../../domain";
-import { TeamError } from "../../errors/team.errors";
+import {
+  PlayerPointsAddedEvent
+} from "../../../player/domain";
+import {
+  playerHasNoTeam,
+  playerNotFound
+} from "../../../player/errors/player.errors";
+import {
+  addContribution,
+  Team,
+} from "../../domain";
+import { teamNotFound } from "../../errors/team.errors";
 import { ITeamRepo } from "../spi/teamRepo.spi";
 
 type Request = PlayerPointsAddedEvent;
@@ -13,31 +27,26 @@ type AddTeamContributionUseCase = (teamRepo: ITeamRepo, playerRepo: IPlayerRepo)
   (event: Request) => Response;
 
 export const addTeamContributionUseCase: AddTeamContributionUseCase = (teamRepo, playerRepo) =>
-  async (event: Request): Response => {
-    const { id } = event;
-    
-    let team: TeamWithLogic | null = null;
-    
-    const player = await playerRepo.getById(id);
+  async ({ id }: Request): Response => {
+    const playerId = create<PlayerId>(PlayerIdSchema, id);
+    const player = await playerRepo.getById(playerId);
     
     if(!player)
-        throw PlayerError.notFound(id);
+        throw playerNotFound(id);
     if(!player?.teamId)
-        throw PlayerError.playerHasNoTeam();
-
-    team = await teamRepo.getById(player?.teamId);
+        throw playerHasNoTeam();
+    
+    const teamId = create<TeamId>(TeamIdSchema, player?.teamId);
+    let team = await teamRepo.getById(teamId);
+    console.log({ initialTeam: team });
 
     if(!team)
-        throw TeamError.notFound(player?.teamId);
+        throw teamNotFound(player?.teamId);
     
-    console.log({ initialTeam: toPureDomain(team, validateTeamDomain) });
-    team = team.addContribution(player);
+    team = addContribution(team, player);
+
+    await teamRepo.save(team);
     
-    const teamToPersist = toPureDomain(team, validateTeamDomain);
-    await teamRepo.save(teamToPersist);
-    
-    console.log("END ADD TEAM CONTRIBUTIONS");
-    
-    console.log("teamToPersist:", teamToPersist);
+    console.log("END ADD TEAM CONTRIBUTIONS", { result: team });
     return team;
 };

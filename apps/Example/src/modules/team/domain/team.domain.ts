@@ -1,19 +1,34 @@
-import { DomainObject, DomainProps } from "../../../shared/core/domain";
-import { Player } from "../../player/domain";
+import { z } from "zod";
 
-export type TeamWithLogic = Team & TeamLogic;
+import {
+  PlayerId,
+  PlayerIdSchema,
+  PointsSchema,
+  TeamIdSchema
+} from "../../common/domain";
 
-export type Team = DomainObject & {
-  readonly name: string;
-  readonly captain: string;
-  readonly members: string[];
-  readonly points: number;
-  readonly contributions?: {
-    [id: string]: number;
-  };
-}
+export const TeamCaptainSchema = PlayerIdSchema;
+export const TeamNameSchema = z.string().min(1);
+export const TeamMembersSchema = z.array(PlayerIdSchema).default([]);
+export const ContributorSchema = z.record(z.number()).default({});
 
-export type TeamProps = DomainProps &  {
+export const TeamSchema = z.object({
+  id: TeamIdSchema,
+  name: TeamNameSchema,
+  captain: TeamCaptainSchema,
+  members: TeamMembersSchema,
+  points: PointsSchema,
+  contributions: ContributorSchema,
+});
+
+export type TeamName = z.infer<typeof TeamNameSchema>;
+export type TeamCaptain = PlayerId;
+export type TeamMembers = z.infer<typeof TeamMembersSchema>;
+export type Contributor = z.infer<typeof ContributorSchema>;
+
+export type Team = z.infer<typeof TeamSchema>;
+export type TeamProps = {
+  id?: string | null;
   name: string;
   captain: string;
   members?: string[];
@@ -21,11 +36,4 @@ export type TeamProps = DomainProps &  {
   contributions?: {
     [id: string]: number;
   }
-}
-
-export type TeamLogic = {
-  addMember: (player: Player, teamMax: number) => TeamWithLogic;
-  alreadyHasMember: (player: Player) => boolean;
-  spacesAvailable: (teamMax: number) => boolean;
-  addContribution: (player: Player) => TeamWithLogic;
 }

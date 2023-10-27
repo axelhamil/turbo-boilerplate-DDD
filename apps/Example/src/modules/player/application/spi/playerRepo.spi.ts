@@ -1,7 +1,6 @@
-import { MatchesExactly } from "../../../../shared/core/app";
-import { Player, PlayerWithLogic } from "../../domain";
+import { Player } from "../../domain";
 
 export interface IPlayerRepo {
-  getById: (id: string) => Promise<PlayerWithLogic | null>;
-  save: <T>(player: MatchesExactly<T, Player>) => Promise<void>;
+  getById: (id: string) => Promise<Player | null>;
+  save: (player: Player) => Promise<void>;
 }

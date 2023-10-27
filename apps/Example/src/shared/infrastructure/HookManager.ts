@@ -1,35 +1,42 @@
-export class HookManager {
-  private static beforeHooks: { [key: string]: any[] } = {};
-  private static afterHooks: { [key: string]: any[] } = {};
+export type Hook = {
+  methodName: string;
+  hookFunction: any;
+};
 
-  static addBeforeHook(methodName: string, hookFunction: any): void {
-    if (!this.beforeHooks[methodName]) {
-      this.beforeHooks[methodName] = [];
-    }
-    this.beforeHooks[methodName].push(hookFunction);
+type HookHandlers = {
+  before: { [key: string]: Hook[] };
+  after: { [key: string]: Hook[] };
+};
+
+const beforeHooks: HookHandlers['before'] = {};
+const afterHooks: HookHandlers['after'] = {};
+
+export function addBeforeHook(methodName: string, hookFunction: any): void {
+  if (!beforeHooks[methodName]) {
+    beforeHooks[methodName] = [];
   }
+  beforeHooks[methodName].push({ methodName, hookFunction });
+}
 
-  static addAfterHook(methodName: string, hookFunction: any): void {
-    if (!this.afterHooks[methodName]) {
-      this.afterHooks[methodName] = [];
-    }
-    this.afterHooks[methodName].push(hookFunction);
+export function addAfterHook(methodName: string, hookFunction: any): void {
+  if (!afterHooks[methodName]) {
+    afterHooks[methodName] = [];
   }
+  afterHooks[methodName].push({ methodName, hookFunction });
+}
 
-  static async runBeforeHooks(methodName: string, ...args: any[]): Promise<void> {
-    if (this.beforeHooks[methodName]) {
-      for (const hook of this.beforeHooks[methodName]) {
-        await hook(...args);
-      }
+export async function runBeforeHooks(methodName: string, ...args: any[]): Promise<void> {
+  if (beforeHooks[methodName]) {
+    for (const hook of beforeHooks[methodName]) {
+      await hook.hookFunction(...args);
     }
   }
+}
 
-  static async runAfterHooks(methodName: string, result: any, ...args: any[]): Promise<any> {
-    if (this.afterHooks[methodName]) {
-      for (const hook of this.afterHooks[methodName]) {
-        result = await hook(result, ...args);
-      }
+export async function runAfterHooks(methodName: string, result: any, ...args: any[]): Promise<any> {
+  if (afterHooks[methodName]) {
+    for (const hook of afterHooks[methodName]) {
+      await hook.hookFunction(result, ...args);
     }
-    return result;
   }
 }

@@ -1,19 +1,19 @@
-import { createPlayerWithLogic, Player } from "../../../player/domain";
+import {
+  addTeamToPlayer,
+  Player
+} from "../../../player/domain";
 import { Team } from "../team.domain";
-import { createTeamWithLogic } from "../team.logic";
+import { addContribution, addMember } from "../team.logic";
 
 type AddPlayerToTeamOutput = { team: Team, player: Player };
 type AddPlayerToTeam = (player: Player, team: Team, teamMax: number) => AddPlayerToTeamOutput;
 
 export const addPlayerToTeam: AddPlayerToTeam = (player: Player, team: Team, teamMax: number): AddPlayerToTeamOutput => {
   
-  const playerWithActions = createPlayerWithLogic(player);
-  let teamWithActions = createTeamWithLogic(team);
+  team = addMember(team, player, teamMax);
+  team = addContribution(team, player);
   
-  teamWithActions = teamWithActions.addMember(player, teamMax);
-  
-  teamWithActions.addContribution(player);
-  playerWithActions.addTeam(team.id);
+  player = addTeamToPlayer(player, team.id);
   
   return { team, player };
 };
