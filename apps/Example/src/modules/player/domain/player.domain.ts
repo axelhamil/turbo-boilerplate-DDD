@@ -1,40 +1,41 @@
-import {
-  DomainEvent,
-  DomainObject,
-  DomainProps
-} from "../../../shared/core/domain";
+import { z } from "zod";
 
-export type PlayerWithLogic = Player & PlayerLogic;
+import { defaultAvatar } from "../../__tests__/mocks";
+import { PlayerIdSchema, PointsSchema, TeamIdSchema } from "../../common/domain";
 
-export type Player = DomainObject & {
-  readonly teamId: string | null;
-  readonly name: string;
-  readonly points: number;
-  readonly avatar: Avatar;
-}
+export const AvatarAssetSchema = z.object({
+  assetId: z.string(),
+  category: z.string(),
+  color: z.string().nullable(),
+  type: z.string(),
+});
 
-export type PlayerProps = DomainProps & {
+export const AvatarSchema = z.array(AvatarAssetSchema).default(defaultAvatar);
+export const PlayerNameSchema = z.string().min(1);
+
+export const PlayerSchema = z.object({
+  id: PlayerIdSchema,
+  teamId: TeamIdSchema,
+  name: PlayerNameSchema,
+  points: PointsSchema,
+  avatar: AvatarSchema,
+});
+
+export type Avatar = z.infer<typeof AvatarSchema>;
+export type AvatarAsset = z.infer<typeof AvatarAssetSchema>;
+export type PlayerName = z.infer<typeof PlayerNameSchema>;
+
+export type Player = z.infer<typeof PlayerSchema>;
+export type PlayerProps = {
+  id?: string | null;
   teamId?: string | null;
   name: string;
   points?: number;
   avatar?: Avatar;
 }
 
-export type Avatar = AvatarAsset[];
-
-export type AvatarAsset = {
-  assetId: string;
-  category: string;
-  color: string | null;
-  type: string;
-}
-
-export type PlayerLogic = {
-  addPoints: (pointsToAdd: number) => PlayerWithLogic;
-  addTeam: (teamId: string) => PlayerWithLogic;
-}
-
-export type PlayerPointsAddedEvent = DomainEvent & {
+export type PlayerPointsAddedEvent = {
+  type: 'PLAYER_POINTS_ADDED';
+  dateTimeOccurred: Date;
   id: string;
-};
-
+}

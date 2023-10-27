@@ -4,6 +4,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "outDir": "dist",
+    "strict": true,
+    "strictNullChecks": true
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules"]

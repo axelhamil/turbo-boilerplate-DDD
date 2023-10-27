@@ -1,6 +1,10 @@
-import { toPureDomain } from "../../../../shared/core/domain";
-import { Player, validatePlayerDomain } from "../../domain";
-import { PlayerError } from "../../errors/player.errors";
+import { create } from "../../../../shared/core/domain";
+import { PlayerId, PlayerIdSchema } from "../../../common/domain";
+import { addPointsToPlayer } from "../../domain";
+import {
+    Player,
+} from "../../domain";
+import { playerNotFound } from "../../errors/player.errors";
 import { IPlayerRepo } from "../spi/playerRepo.spi";
 
 type Request = { playerId: string };
@@ -11,18 +15,18 @@ type AddPointsUseCase = (playerRepo: IPlayerRepo) =>
 
 export const addPointsUseCase: AddPointsUseCase = (playerRepo) =>
   async (dto) => {
-    let player = await playerRepo.getById(dto.playerId);
+    
+    const playerId = create<PlayerId>(PlayerIdSchema, dto.playerId);
+    
+    let player = await playerRepo.getById(playerId);
     
     if(!player)
-      throw PlayerError.notFound(dto.playerId);
-      
-    console.log("ADD POINTS");
-    player = player.addPoints(100);
+        throw playerNotFound(dto.playerId);
+
+    player = addPointsToPlayer(player, 10);
     
-    const playerToPersist = toPureDomain(player, validatePlayerDomain);
+    await playerRepo.save(player);
     
-    console.log("SAVE PLAYER");
-    await playerRepo.save(playerToPersist);
-    
-    return playerToPersist;
+    console.log("END USECASE ADD POINTS", { result: player });
+    return player;
 };

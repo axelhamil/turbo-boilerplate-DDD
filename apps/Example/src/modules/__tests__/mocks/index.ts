@@ -1,7 +1,7 @@
-import { Avatar, Player } from "../../player/domain";
+import { Player } from "../../player/domain";
 import { Team } from "../../team/domain";
 
-export const defaultAvatar: Avatar = [
+export const defaultAvatar = [
   {
     assetId: 'CkfPqx_CbjqnefuAFLnBN',
     category: 'SKINS',
